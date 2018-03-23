@@ -12,3 +12,16 @@ if [ ! "$x" = "" ]; then
 else 
 	echo "Ok : $(date) $(date -u)"
 fi
+
+echo -e "GET http://facebook.com HTTP/1.0\n\n" | nc facebook.com 80 > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+	echo "Online"
+else
+	echo "Offline"
+	ifdown wan0
+	ifup wan0
+	/etc/init.d/is-dhcp-server restart
+	echo "Restarted DHCP"
+	/etc/init.d/bind9 restart
+	echo "Restarted Bind9"
+fi
